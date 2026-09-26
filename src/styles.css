@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0c0d0b;
+  --color-surface: #141512;
+  --color-raised: #1c1d19;
+  --color-fg: #eceae4;
+  --color-muted: #8b8a82;
+  --color-faint: #5c5b55;
+  --color-accent: #b8c4a8;
+  --color-accent-fg: #0c0d0b;
+  --color-line: color-mix(in oklab, var(--color-fg) 12%, transparent);
+  --color-line-strong: color-mix(in oklab, var(--color-fg) 22%, transparent);
+  --color-pass: #8fa37a;
+  --color-fail: #c17b6a;
+  --color-warn: #c4b08a;
+
+  --font-display: "Newsreader", "Iowan Old Style", "Palatino Linotype", serif;
+  --font-sans: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  --shadow-border: 0 0 0 1px rgba(236, 234, 228, 0.08);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  html,
+  body,
+  #app {
+    min-height: 100%;
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+  body {
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-family: var(--font-display);
+  }
+  p {
+    text-wrap: pretty;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  textarea,
+  input {
+    font-family: inherit;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

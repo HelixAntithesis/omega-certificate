@@ -1,0 +1,17 @@
+.project_id
+node_modules/
+.vercel/
+.output/
+dist/
+.nitro/
+.tanstack/
+.grok/
+artifacts/
+screenshots/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+coverage/
+*.tsbuildinfo
