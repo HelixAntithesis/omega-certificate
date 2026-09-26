@@ -6,6 +6,7 @@ import {
   FlaskConical,
   Gauge,
   Hash,
+  Layers,
   Play,
   Scale,
   Shield,
@@ -13,14 +14,17 @@ import {
   ShieldX,
   Sigma,
 } from "lucide-react";
-import { LIBRARY } from "@/lib/omega/library";
+import { Applications } from "@/components/applications";
 import { decideOrd, formatCnf, parseOrd, evalOrd } from "@/lib/omega/ordinals";
+import { LIBRARY } from "@/lib/omega/library";
+import { SUBJECTS } from "@/lib/omega/subjects";
 import { useOmega, type Tab } from "@/lib/omega/store";
 import { describeDraft } from "@/lib/omega/verify";
 import { formatAtom, formatConstraint } from "@/lib/omega/lin";
 import { cn } from "@/lib/utils";
 
 const TABS: { id: Tab; label: string; icon: typeof Play }[] = [
+  { id: "applications", label: "Applications", icon: Layers },
   { id: "studio", label: "Studio", icon: FlaskConical },
   { id: "omega", label: "Omega", icon: Sigma },
   { id: "kernel", label: "Kernel", icon: Shield },
@@ -45,13 +49,13 @@ export function CertApp() {
                 Omega certificate
               </h1>
               <p className="mt-2 max-w-xl text-sm text-muted">
-                Lean-standard peer review for the omega decision procedure. Tactics are
-                untrusted. Only a pair of independent kernels may certify.
+                Lean-standard peer review for named subject certificates. Handshake
+                priority is efran. Only the two kernels may certify.
               </p>
             </div>
             <StatusMark certified={certified} empty={!result} />
           </div>
-          <nav className="-mx-1 flex gap-1 overflow-x-auto pb-1" aria-label="Sections">
+          <nav className="-mx-1 flex w-full min-w-0 gap-1 overflow-x-auto pb-1" aria-label="Sections">
             {TABS.map((t) => {
               const Icon = t.icon;
               const on = tab === t.id;
@@ -74,7 +78,8 @@ export function CertApp() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <main className="mx-auto min-w-0 max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        {tab === "applications" && <Applications />}
         {tab === "studio" && <Studio />}
         {tab === "omega" && <OmegaPane />}
         {tab === "kernel" && <KernelPane />}
@@ -352,27 +357,39 @@ function KernelCard({
 }
 
 function ReviewPane() {
-  const { result, run } = useOmega();
+  const { result, run, subjectId } = useOmega();
+  const subject = SUBJECTS.find((s) => s.id === subjectId) ?? null;
   if (!result?.review) return <EmptyRun onRun={run} label="Peer review waits on a kernel run." />;
   const r = result.review;
   return (
     <div className="grid gap-6">
-      <section
-        className={cn(
-          "rounded-xl p-5 shadow-[var(--shadow-border)] sm:p-6",
-          r.certified ? "bg-surface" : "bg-surface",
-        )}
-      >
+      <section className="rounded-xl bg-surface p-5 shadow-[var(--shadow-border)] sm:p-6">
         <p className="font-mono text-[11px] tracking-[0.22em] text-muted uppercase">
           Comparator verdict
         </p>
         <h2 className="mt-2 font-display text-3xl tracking-tight">
-          {r.certified ? "Certified theorem" : "Not certified"}
+          {subject ? subject.name : r.certified ? "Certified theorem" : "Not certified"}
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-muted">
-          Lean verification standard: a declaration is a theorem only if every independent
-          kernel accepts an exported certificate, and sorry is absent from the TCB.
+          {r.certified ? "Kernels accepted." : "Not certified."} Handshake priority is efran.
+          A declaration is a theorem only if both kernels accept and sorry is absent.
         </p>
+      </section>
+      <section className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
+        <h3 className="font-display text-xl">Handshake order</h3>
+        <ol className="mt-3 space-y-2">
+          {(subject?.handshake ?? ["efran", "nanoda-js", "lean4lean-js"]).map((peer, i) => (
+            <li key={peer} className="flex items-center justify-between text-sm">
+              <span>
+                <span className="mr-2 font-mono text-xs text-faint tabular-nums">{i + 1}</span>
+                {peer}
+              </span>
+              <span className="font-mono text-[10px] tracking-wider text-muted uppercase">
+                {i === 0 ? "priority" : r.certified ? "accepted" : "held"}
+              </span>
+            </li>
+          ))}
+        </ol>
       </section>
       <section className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
         <h3 className="font-display text-xl">Standards checklist</h3>

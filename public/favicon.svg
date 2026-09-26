@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="#0c0d0b"/>
-  <text x="16" y="23" text-anchor="middle" font-size="18" font-family="Georgia, serif" fill="#b8c4a8">Ω</text>
+  <rect width="32" height="32" rx="6" fill="#0c0d0b"/>
+  <path fill="none" stroke="#b8c4a8" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"
+    d="M6 23.2H11.2C10.6 20.6 9.2 18.6 10 16.8 8 15.2 7 13.2 7 11.2 7 7.4 10.8 5.2 16 5.2 21.2 5.2 25 7.4 25 11.2 25 13.2 24 15.2 22 16.8 22.8 18.6 21.4 20.6 20.8 23.2H26"/>
 </svg>
