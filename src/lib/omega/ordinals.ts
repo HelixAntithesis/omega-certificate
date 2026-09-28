@@ -31,10 +31,9 @@ export function addCnf(a: Cnf, b: Cnf): Cnf {
   const headA = a[0]!;
   const headB = b[0]!;
   const c = cmpCnf(headA.exp, headB.exp);
+  if (c < 0) return b;
   if (c > 0) return [headA, ...addCnf(a.slice(1), b)];
-  if (c < 0) return addCnf(b, a);
-  const coeff = headA.coeff + headB.coeff;
-  return [{ exp: headA.exp, coeff }, ...addCnf(a.slice(1), b.slice(1))];
+  return [{ exp: headA.exp, coeff: headA.coeff + headB.coeff }, ...b.slice(1)];
 }
 
 export function mulFinite(a: Cnf, n: number): Cnf {
@@ -47,16 +46,10 @@ export function mulCnf(a: Cnf, b: Cnf): Cnf {
   if (!a.length || !b.length) return [];
   let acc: Cnf = [];
   for (const term of b) {
-    const piece = a.length
-      ? [{ exp: addCnf(a[0]!.exp, term.exp), coeff: a[0]!.coeff * term.coeff }, ...mulFinite(a.slice(1), 0)]
-      : [];
-    // ω^α · (ω^β · c) = ω^(α+β) · c when β>0; when β=0 it is finite multiply
-    let contrib: Cnf;
-    if (term.exp.length === 0) contrib = mulFinite(a, term.coeff);
-    else {
-      const head = a[0]!;
-      contrib = [{ exp: addCnf(head.exp, term.exp), coeff: head.coeff * term.coeff }];
-    }
+    const contrib: Cnf =
+      term.exp.length === 0
+        ? mulFinite(a, term.coeff)
+        : [{ exp: addCnf(a[0]!.exp, term.exp), coeff: term.coeff }];
     acc = addCnf(acc, contrib);
   }
   return acc;
@@ -84,7 +77,32 @@ export type OrdExpr =
   | { kind: "num"; n: number }
   | { kind: "omega" }
   | { kind: "add"; l: OrdExpr; r: OrdExpr }
-  | { kind: "mul"; l: OrdExpr; r: OrdExpr };
+  | { kind: "mul"; l: OrdExpr; r: OrdExpr }
+  | { kind: "pow"; l: OrdExpr; r: OrdExpr };
+
+function isFiniteCnf(a: Cnf): boolean {
+  return a.length === 0 || (a.length === 1 && a[0]!.exp.length === 0);
+}
+
+function finiteValue(a: Cnf): number {
+  return a.length === 0 ? 0 : a[0]!.coeff;
+}
+
+function isOmegaCnf(a: Cnf): boolean {
+  return a.length === 1 && a[0]!.coeff === 1 && cmpCnf(a[0]!.exp, ONE) === 0;
+}
+
+function powCnf(base: Cnf, exp: Cnf): Cnf {
+  if (!exp.length) return ONE;
+  if (!base.length) return ZERO;
+  if (isFiniteCnf(base) && isFiniteCnf(exp)) {
+    const e = finiteValue(exp);
+    if (e > 12) throw new Error("Finite ordinal power is too large.");
+    return finite(finiteValue(base) ** e);
+  }
+  if (isOmegaCnf(base)) return [{ exp, coeff: 1 }];
+  throw new Error("Only finite powers and ω^α are decided.");
+}
 
 export function evalOrd(e: OrdExpr): Cnf {
   switch (e.kind) {
@@ -96,6 +114,8 @@ export function evalOrd(e: OrdExpr): Cnf {
       return addCnf(evalOrd(e.l), evalOrd(e.r));
     case "mul":
       return mulCnf(evalOrd(e.l), evalOrd(e.r));
+    case "pow":
+      return powCnf(evalOrd(e.l), evalOrd(e.r));
   }
 }
 
@@ -126,22 +146,9 @@ function parseMul(s: string): { e: OrdExpr; rest: string } {
 
 function parsePow(s: string): { e: OrdExpr; rest: string } {
   const atom = parseAtom(s);
-  if (atom.rest.startsWith("^")) {
-    const exp = parsePow(atom.rest.slice(1));
-    // ω^α ≈ mul tower via CNF: treat as omega * ... only for finite small; use add on exponents via eval
-    if (atom.e.kind === "omega") {
-      return {
-        e: { kind: "mul", l: { kind: "omega" }, r: powRest(exp.e) },
-        rest: exp.rest,
-      };
-    }
-    return { e: atom.e, rest: atom.rest };
-  }
-  return atom;
-}
-
-function powRest(e: OrdExpr): OrdExpr {
-  return e;
+  if (!atom.rest.startsWith("^")) return atom;
+  const exp = parsePow(atom.rest.slice(1));
+  return { e: { kind: "pow", l: atom.e, r: exp.e }, rest: exp.rest };
 }
 
 function parseAtom(s: string): { e: OrdExpr; rest: string } {

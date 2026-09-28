@@ -121,12 +121,17 @@ function projectUnsat(
     const out: FmConstraint[] = [];
     for (const row of rows) {
       const t = tryTighten(row);
-      if (!t.changed) {
+      const src = unitIndex(row.combo);
+      if (!t.changed || src === null) {
         out.push(row);
         continue;
       }
       const cutIndex = cuts.length;
-      cuts.push({ source: sourceIndex(row, originals.length), gcd: t.gcd, result: { coeff: t.row.coeff, bound: t.row.bound, label: t.row.label } });
+      cuts.push({
+        source: src,
+        gcd: t.gcd,
+        result: { coeff: t.row.coeff, bound: t.row.bound, label: t.row.label },
+      });
       const combo = Array.from({ length: originals.length + cuts.length }, (_, j) =>
         j === originals.length + cutIndex ? 1 : 0,
       );
@@ -181,9 +186,15 @@ function projectUnsat(
   return { unsat: false, cert: null };
 }
 
-function sourceIndex(row: FmConstraint, origLen: number): number {
-  const idx = row.combo.findIndex((x) => x > 0);
-  return idx >= 0 ? idx : 0;
+function unitIndex(combo: number[]): number | null {
+  let idx = -1;
+  for (let i = 0; i < combo.length; i++) {
+    const x = combo[i] ?? 0;
+    if (x === 0) continue;
+    if (x !== 1 || idx !== -1) return null;
+    idx = i;
+  }
+  return idx >= 0 ? idx : null;
 }
 
 function pad(xs: number[], n: number): number[] {
@@ -218,6 +229,52 @@ function findWitness(constraints: Constraint[], vars: string[]): Record<string, 
 }
 
 export function proveOmega(draft: TheoremDraft): {
+  unsat: boolean;
+  steps: OmegaStep[];
+  certificate: FarkasCert | null;
+  witness: Record<string, number> | null;
+} {
+  if (draft.goal.cmp === "=") return proveEquality(draft);
+  return proveInequality(draft);
+}
+
+function proveEquality(draft: TheoremDraft): {
+  unsat: boolean;
+  steps: OmegaStep[];
+  certificate: FarkasCert | null;
+  witness: Record<string, number> | null;
+} {
+  const le = proveInequality({ ...draft, goal: { ...draft.goal, cmp: "<=" } });
+  const ge = proveInequality({ ...draft, goal: { ...draft.goal, cmp: ">=" } });
+  const steps: OmegaStep[] = [
+    {
+      kind: "normalize",
+      text: "Equality splits into both directions. Each direction needs its own certificate.",
+      constraints: [],
+    },
+    ...le.steps,
+    ...ge.steps,
+  ];
+  if (le.unsat && ge.unsat && le.certificate && ge.certificate) {
+    return {
+      unsat: true,
+      steps,
+      certificate: { ...le.certificate, also: ge.certificate },
+      witness: null,
+    };
+  }
+  const witness = le.witness ?? ge.witness;
+  if (witness) {
+    steps.push({
+      kind: "sat",
+      witness,
+      text: `Countermodel ${formatWitness(witness)} breaks equality.`,
+    });
+  }
+  return { unsat: false, steps, certificate: null, witness };
+}
+
+function proveInequality(draft: TheoremDraft): {
   unsat: boolean;
   steps: OmegaStep[];
   certificate: FarkasCert | null;

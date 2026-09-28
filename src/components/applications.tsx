@@ -1,3 +1,4 @@
+import { HANDSHAKE_FILES } from "@/lib/omega/handshake";
 import { KINGDOMS, SUBJECTS, subjectsIn, type Kingdom } from "@/lib/omega/subjects";
 import { useOmega } from "@/lib/omega/store";
 import { cn } from "@/lib/utils";
@@ -102,16 +103,21 @@ export function Applications() {
             <p className="mt-2 text-sm text-muted">{active.note}</p>
             <h3 className="mt-6 font-display text-lg">Handshake</h3>
             <p className="mt-1 text-sm text-muted">Priority is efran. Kernels still decide.</p>
-            <ol className="mt-3 space-y-2">
+            <ol className="mt-3 space-y-3">
               {active.handshake.map((peer, i) => (
-                <li key={peer} className="flex items-center justify-between gap-3 text-sm">
-                  <span>
-                    <span className="mr-2 font-mono text-xs text-faint tabular-nums">{i + 1}</span>
-                    {peer}
-                  </span>
-                  <span className="font-mono text-[10px] tracking-wider text-muted uppercase">
-                    {i === 0 ? "priority" : "kernel"}
-                  </span>
+                <li key={peer} className="text-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <span>
+                      <span className="mr-2 font-mono text-xs text-faint tabular-nums">{i + 1}</span>
+                      {peer}
+                    </span>
+                    <span className="font-mono text-[10px] tracking-wider text-muted uppercase">
+                      {i === 0 ? "priority" : "kernel"}
+                    </span>
+                  </div>
+                  <p className="mt-1 break-all pl-5 font-mono text-[11px] text-faint">
+                    {HANDSHAKE_FILES[peer] ?? "no file"}
+                  </p>
                 </li>
               ))}
             </ol>

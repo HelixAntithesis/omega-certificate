@@ -119,8 +119,8 @@ function parseLean(text: string, tactic: TheoremDraft["tactic"], source: string)
   const binders: string[] = [];
   while ((m = binderRe.exec(afterName))) binders.push(m[1]!);
 
-  const colonGoal = afterName.match(/\)\s*:\s*([^:=]+?)\s*:=/);
-  const goalSrc = colonGoal?.[1]?.trim();
+  const withoutBinders = afterName.replace(/\([^)]*\)/g, " ");
+  const goalSrc = withoutBinders.match(/:\s*([\s\S]+?)\s*:=/)?.[1]?.trim();
   if (!goalSrc) throw new Error("Missing goal after “: … :=”");
 
   for (const b of binders) {

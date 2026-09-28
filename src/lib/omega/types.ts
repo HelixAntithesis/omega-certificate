@@ -62,6 +62,8 @@ export type FarkasCert = {
   cuts: CutStep[];
   originals: Constraint[];
   derived: Constraint;
+  /** Second direction when the goal is an equality. */
+  also?: FarkasCert;
 };
 
 export type KernelVerdict = {

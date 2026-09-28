@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Applications } from "@/components/applications";
 import { decideOrd, formatCnf, parseOrd, evalOrd } from "@/lib/omega/ordinals";
+import { HANDSHAKE_FILES } from "@/lib/omega/handshake";
 import { LIBRARY } from "@/lib/omega/library";
 import { SUBJECTS } from "@/lib/omega/subjects";
 import { useOmega, type Tab } from "@/lib/omega/store";
@@ -377,16 +378,21 @@ function ReviewPane() {
       </section>
       <section className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
         <h3 className="font-display text-xl">Handshake order</h3>
-        <ol className="mt-3 space-y-2">
-          {(subject?.handshake ?? ["efran", "nanoda-js", "lean4lean-js"]).map((peer, i) => (
-            <li key={peer} className="flex items-center justify-between text-sm">
-              <span>
-                <span className="mr-2 font-mono text-xs text-faint tabular-nums">{i + 1}</span>
-                {peer}
-              </span>
-              <span className="font-mono text-[10px] tracking-wider text-muted uppercase">
-                {i === 0 ? "priority" : r.certified ? "accepted" : "held"}
-              </span>
+        <ol className="mt-3 space-y-3">
+          {(subject?.handshake ?? (["efran", "nanoda-js", "lean4lean-js"] as const)).map((peer, i) => (
+            <li key={peer} className="text-sm">
+              <div className="flex items-center justify-between">
+                <span>
+                  <span className="mr-2 font-mono text-xs text-faint tabular-nums">{i + 1}</span>
+                  {peer}
+                </span>
+                <span className="font-mono text-[10px] tracking-wider text-muted uppercase">
+                  {i === 0 ? "priority" : r.certified ? "accepted" : "held"}
+                </span>
+              </div>
+              <p className="mt-1 break-all pl-5 font-mono text-[11px] text-faint">
+                {HANDSHAKE_FILES[peer] ?? "no file"}
+              </p>
             </li>
           ))}
         </ol>

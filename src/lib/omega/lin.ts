@@ -92,11 +92,8 @@ export function negateAtom(atom: Atom): Atom {
     ">=": "<",
     "<": ">=",
     ">": "<=",
-    "=": "=",
+    "=": ">",
   };
-  if (atom.cmp === "=") {
-    return { left: atom.left, cmp: ">", right: atom.right };
-  }
   return { left: atom.left, cmp: flip[atom.cmp], right: atom.right };
 }
 
