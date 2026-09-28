@@ -17,3 +17,5 @@ npm run dev
 ```
 
 Open the app and choose a library theorem, then **Verify**. **Peer review** shows the standards checklist. **All ω** compares Cantor normal forms such as `ω + 1` and `1 + ω`.
+
+Fork notes, availability, and the 100,000-iteration check are in [FORKING.md](FORKING.md).
