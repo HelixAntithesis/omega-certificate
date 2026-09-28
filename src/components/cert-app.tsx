@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Applications } from "@/components/applications";
 import { decideOrd, formatCnf, parseOrd, evalOrd } from "@/lib/omega/ordinals";
+import { emulateAgents } from "@/lib/omega/agents";
 import { HANDSHAKE_FILES } from "@/lib/omega/handshake";
 import { LIBRARY } from "@/lib/omega/library";
 import { SUBJECTS } from "@/lib/omega/subjects";
@@ -396,6 +397,27 @@ function ReviewPane() {
             </li>
           ))}
         </ol>
+      </section>
+      <section className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
+        <h3 className="font-display text-xl">Emulated agents</h3>
+        <p className="mt-1 text-sm text-muted">
+          Local stand-ins for Grok, Claude, GPT, Gemini, DeepSeek, and Qwen. Not those vendors.
+          They do not certify. Kernels do.
+        </p>
+        <ul className="mt-4 divide-y divide-line">
+          {emulateAgents(result).map((agent) => (
+            <li key={agent.id} className="py-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-mono text-sm">{agent.name}</p>
+                <span className="font-mono text-[10px] tracking-wider text-muted uppercase">
+                  {agent.agrees ? "agrees" : "withholds"}
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-muted">{agent.checks}</p>
+              <p className="mt-1 text-sm">{agent.note}</p>
+            </li>
+          ))}
+        </ul>
       </section>
       <section className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
         <h3 className="font-display text-xl">Standards checklist</h3>
