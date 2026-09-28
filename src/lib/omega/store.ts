@@ -4,7 +4,7 @@ import { SUBJECTS, type Kingdom, type SubjectApp } from "./subjects";
 import type { VerifyResult } from "./types";
 import { verifySource } from "./verify";
 
-export type Tab = "applications" | "studio" | "kernel" | "omega" | "review" | "ordinals";
+export type Tab = "applications" | "studio" | "kernel" | "omega" | "review" | "ordinals" | "grokbot";
 
 type State = {
   source: string;

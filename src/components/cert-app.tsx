@@ -5,6 +5,7 @@ import {
   CircleAlert,
   FlaskConical,
   Gauge,
+  GitFork,
   Hash,
   Layers,
   Play,
@@ -15,6 +16,7 @@ import {
   Sigma,
 } from "lucide-react";
 import { Applications } from "@/components/applications";
+import { GrokbotPane } from "@/components/grokbot-pane";
 import { decideOrd, formatCnf, parseOrd, evalOrd } from "@/lib/omega/ordinals";
 import { emulateAgents } from "@/lib/omega/agents";
 import { HANDSHAKE_FILES } from "@/lib/omega/handshake";
@@ -31,6 +33,7 @@ const TABS: { id: Tab; label: string; icon: typeof Play }[] = [
   { id: "omega", label: "Omega", icon: Sigma },
   { id: "kernel", label: "Kernel", icon: Shield },
   { id: "review", label: "Peer review", icon: Scale },
+  { id: "grokbot", label: "Grokbot", icon: GitFork },
   { id: "ordinals", label: "All ω", icon: Hash },
 ];
 
@@ -86,6 +89,7 @@ export function CertApp() {
         {tab === "omega" && <OmegaPane />}
         {tab === "kernel" && <KernelPane />}
         {tab === "review" && <ReviewPane />}
+        {tab === "grokbot" && <GrokbotPane />}
         {tab === "ordinals" && <OrdinalPane />}
       </main>
     </div>
